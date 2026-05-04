@@ -1,0 +1,231 @@
+<！DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<元名称=“视口”内容=“宽度=设备宽度，初始比例=1.0”>
+<title>资源视频播放器</title>
+<style>
+*{边距：0；填充：0；框大小：border-box；}
+正文{font-family:system-ui，微软雅黑，无衬线；背景：#f5f6f8；填充：20px；}
+.container{max-width:1200px；margin:0auto；}
+
+.url-box{
+background：#fff；
+填料：20px；
+边界半径：12px；
+底边距：20px；
+box-shadow:02px8px rgba(0,0,0,0.08);
+}
+.url-box h3{margin-bottom:12px;color:#333;}
+.url-input{
+宽度：100%；
+填料：12px15px；
+边框：1px实心#ddd；
+边界半径：8px；
+font-size:14px；
+底边距：10px；
+}
+.url-btn{
+背景：#2478f5；
+color：#fff；
+边框：无；
+填料：10px20px；
+边界半径：6px；
+光标：指针；
+右边距：10px；
+}
+.clear-url-btn{
+背景：#f56c6c；
+color：#fff；
+边框：无；
+填料：10px20px；
+边界半径：6px；
+光标：指针；
+}
+。tip{color：#666；font-size:13px；margin-top:6px；}
+
+#dropBox{
+边框：3px虚线#409eff；
+边界半径：12px；
+文本对齐：居中；
+填料：50px20px；
+底边距：20px；
+过渡：0.3s；
+background：#fff；
+}
+#dropBox.active{
+背景：#ecf5ff；
+边框颜色：#2478f5；
+}
+#fileBtn{
+背景：#409eff；
+color：#fff；
+边框：无；
+填料：10px24px；
+边界半径：6px；
+光标：指针；
+}
+输入[type="file"]{显示：无；}
+
+.item{
+background：#fff；
+  padding:15px;
+边界半径：8px；
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  box-shadow:0 2px 6px #00000010;
+}
+.name{flex:1;margin:0 15px;word-break:break-all;}
+.btn-group button{
+  margin:0 4px;
+  padding:6px 12px;
+边框：无；
+  border-radius:4px;
+光标：指针；
+}
+.preview-btn{background:#67c23a;color:#fff;}
+.down-btn{background:#e6a23c;color:#fff;}
+.del-btn{background:#f56c6c;color:#fff;}
+
+.modal{
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:#000000dd;
+  display:none;
+  align-items:center;
+对齐-内容：居中；
+Z指数：999；
+填料：20px；
+}
+.modal-content{
+宽度：100%；最大宽度：1000px；
+}
+.close{
+位置：绝对；
+顶部：30px；右侧：30px；
+color：#fff；
+字体大小：36px；
+光标：指针；
+}
+视频{
+宽度：100%；
+边界半径：8px；
+背景：#000；
+}
+</style>
+</head>
+<body>
+<div class="container">
+<div class="url-box">
+<h3>🌐  MP4双链播放器</h3>
+<input class="url-input"id="videoUrl"占位符="粘贴MP4视频直链（直接播放，无跨域问题）">
+<button class="url-btn"id="loadUrlVideo">直接播放</button>
+<button class="clear-url-btn"id="clearUrl">一键清空</button>
+<div class="tip">支持MP4直链，可拖进度、音量、全屏</div>
+</div>
+
+<div id="dropBox">
+<h2>📁 拖拽本地文件</h2>
+<p>视频/图片上传预览下载</p>
+<button id="fileBtn">选择文件</button>
+<输入类型="file"id="FileInput"多个>
+</div>
+
+<div id="list"></div>
+</div>
+
+<div class="modal"id="modal">
+<span class="close"id="closeModal">×</span>
+<div class="模态-内容">
+<video id="playVideo"控制控件列表="nodownload noremoteplayback"自动播放></video>
+</div>
+</div>
+
+<script>
+Const dropBox=document.getElementById('dropBox')；
+Const FileInput=document.getElementById('FileInput')；
+常量列表=document.getElementById('list')；
+const modal=document.getElementById('modal')；
+const closeModal=document.getElementById('closeModal')；
+Const videoUrl=document.getElementById('videoUrl')；
+常量loadUrlVideo=document.getElementById('loadUrlVideo')；
+Const clearUrl=document.getElementById('clearUrl')；
+const playVideo=document.getElementById('playVideo')；
+让filelist=[]；
+
+clearUrl.onClick=()=>{videoUrl.value="；videoUrl。集中()；}；
+
+// 直接播放MP4直链，不做嗅探
+loadUrlVideo.onclick=()=>{
+让URL=videoUrl.value.trim()；
+if(！URL)返回alert('请输入MP4视频直链')；
+playVideo.src=url；
+modal.style.display='flex'；
+};
+
+videoUrl.addEventListener('keydown'，e=>{
+if(e.key==='Enter')loadUrlVideo.click()；
+});
+
+// 本地文件
+fileInput.onchange=e=>{句柄文件(e.target.files)；e.target.value="；}；
+Dropbox.AddEventListener('dragover'，e=>{e.preventDefault()；dropBox.classList.add('active')；})；
+Dropbox.AddEventListener('dragleave'，()=>dropBox。classList.remove('active'))；
+dropBox.addEventListener('drop'，e=>{
+e。preventDefault()；dropBox.classList.remove('active')；
+句柄文件(e.dataTransfer.files)；
+});
+
+函数句柄文件(文件){
+for(文件的f){
+设U=URL.createObjectURL(f)；
+文件列表。推送({name:f.名称，类型：f。类型，URL:u，raw:f})；
+  }
+提供()；
+}
+
+函数提供(){
+if(fileList.length====0){
+list.innerHTML='<div style="文本对齐：居中；颜色：#999；填充：40px；">暂无资源</div>'；
+返回；
+  }
+设h="；
+fileList.forEach((item，i)=>{
+H+='
+<div class="item">
+<div class="name">${item.name}</div>
+<div class="btn-group">
+<button class="preview-btn"onclick="openPre(${i})">预览</button>
+<a href="${item.URL}"下载="${item.name}"><button class="down-btn">下载</button></a>
+<button class="del-btn"onclick="delitem(${i})">删除</button>
+</div>
+e。preventDefault()；dropBox.classList.remove('active')；
+  });
+list.innerHTML=h；
+}
+
+window.openPre=(i)=>{
+let item=fileList[i]；
+if(item.type.includes('video')){
+playVideo.src=item.url；
+modal.style.display='flex'；
+}else if(item.type.includes('image')){
+模态。querySelector(“.modal-content”).innerHTML='<img src="${item.URL}"style="最大宽度：100%；边框半径：8px；">'；
+modal.style.display='flex'；
+  }
+};
+
+closeModal.onClick=()=>{modal。风格。display='none'；playVideo.Pause()；modal.QuerySelector('.modal-content')。innerHTML='<video ID="playVideo"控件控制列表="nodownload noremoteplayback"自动播放></video>'；}；
+模态。onClick=e=>{if(e.target===modal){modal。风格。display='none'；playVideo.Pause()；modal.QuerySelector('.modal-content')。innerHTML='<video ID="playVideo"控件控制列表="nodownload noremoteplayback"自动播放></video>'；}}；
+
+window.delItem=(i)=>{
+URL.revokeObjectURL(fileList[i].url)；
+fileList.splice(i，1)；
+提供()；
+};
+</script>
+</body>
+</html>
